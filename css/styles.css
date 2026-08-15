@@ -1,0 +1,243 @@
+/* ============================================
+   RestoApp - Estilos Centralizados (MPA)
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+/* Contenedor principal */
+.contenedor-principal {
+    width: 90%;
+    max-width: 600px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+h2, h3 {
+    margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+/* Navegación */
+.nav-bar {
+    background-color: #34495e;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.nav-bar a, .nav-bar button {
+    color: white;
+    text-decoration: none;
+    padding: 10px 15px;
+    background-color: #2c3e50;
+    border: 1px solid #1a252f;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.nav-bar a:hover, .nav-bar button:hover {
+    background-color: #1a252f;
+}
+
+/* Formularios */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+}
+
+/* Botones */
+button {
+    background-color: #27ae60;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #229954;
+}
+
+button.danger {
+    background-color: #e74c3c;
+}
+
+button.danger:hover {
+    background-color: #c0392b;
+}
+
+button.secondary {
+    background-color: #95a5a6;
+}
+
+button.secondary:hover {
+    background-color: #7f8c8d;
+}
+
+/* Sección de resultados */
+#res, .resultado {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #ecf0f1;
+    border-left: 4px solid #27ae60;
+    border-radius: 4px;
+    font-weight: bold;
+    line-height: 1.6;
+}
+
+/* Sección de autenticación */
+#auth, .auth-section {
+    margin-top: 20px;
+    border: 1px dashed #bdc3c7;
+    padding: 15px;
+    border-radius: 4px;
+    background-color: #fafafa;
+}
+
+#authMsg, .auth-msg {
+    margin-top: 10px;
+    color: #c0392b;
+    font-weight: bold;
+}
+
+#authMsg.success, .auth-msg.success {
+    color: #27ae60;
+}
+
+/* Formularios de productos/admin */
+#productForm, .product-form {
+    margin-top: 20px;
+    border: 1px solid #bdc3c7;
+    padding: 15px;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    display: none;
+}
+
+#productForm.active, .product-form.active {
+    display: block;
+}
+
+#prodMsg, .product-msg {
+    margin-top: 10px;
+    color: #27ae60;
+    font-weight: bold;
+}
+
+#prodMsg.error, .product-msg.error {
+    color: #c0392b;
+}
+
+/* Tabla de items */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table thead {
+    background-color: #34495e;
+    color: white;
+}
+
+table th, table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #bdc3c7;
+}
+
+table tbody tr:hover {
+    background-color: #ecf0f1;
+}
+
+/* Mensajes de error/éxito */
+.alert {
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.alert.error {
+    background-color: #fadbd8;
+    color: #c0392b;
+    border-left: 4px solid #c0392b;
+}
+
+.alert.success {
+    background-color: #d5f4e6;
+    color: #27ae60;
+    border-left: 4px solid #27ae60;
+}
+
+.alert.info {
+    background-color: #d6eaf8;
+    color: #2980b9;
+    border-left: 4px solid #2980b9;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .contenedor-principal {
+        width: 95%;
+        margin: 15px auto;
+        padding: 15px;
+    }
+
+    .nav-bar {
+        flex-direction: column;
+    }
+
+    .nav-bar a, .nav-bar button {
+        width: 100%;
+    }
+
+    h2, h3 {
+        font-size: 18px;
+    }
+}

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ComputeShop - Tomar Pedido</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+<div class="contenedor-principal">
+    <div class="nav-bar">
+        <a href="../index.html">🏠 Inicio</a>
+        <a href="./login.html">🔐 Admin</a>
+    </div>
+
+    <h2>📋 Procesar Pedido</h2>
+    
+    <div id="form">
+        <div class="form-group">
+            <label for="a">Producto:</label>
+            <select id="a">
+                <option value="">--Cargando menú--</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="b">Cantidad:</label>
+            <input type="number" id="b" min="1" placeholder="Ej: 2">
+        </div>
+        
+        <div class="form-group">
+            <label for="p">Precio Unitario ($):</label>
+            <input type="number" id="p" step="0.01" readonly placeholder="Auto completado">
+        </div>
+        
+        <button onclick="procesarPedido()">✓ Procesar Pedido</button>
+        <button class="secondary" onclick="limpiar()">Limpiar</button>
+    </div>
+
+    <div id="res" class="resultado" style="display: none;"></div>
+</div>
+
+<script type="module">
+    import { MenuModule } from '../js/menu.js';
+    import { PedidosModule } from '../js/pedidos.js';
+    import { Utils } from '../js/utils.js';
+
+    // Cargar catálogo al iniciar
+    async function inicializar() {
+        try {
+            await MenuModule.cargarMenu('a');
+            // Attach change listener para auto-completar precio
+            document.getElementById('a').addEventListener('change', autoCompletarPrecio);
+        } catch (error) {
+            console.error('Error inicializando:', error);
+        }
+    }
+
+    // Auto-completar precio al seleccionar producto
+    function autoCompletarPrecio() {
+        const platoId = document.getElementById('a').value;
+        if (platoId) {
+            const precio = MenuModule.obtenerPrecio(platoId);
+            document.getElementById('p').value = precio;
+        }
+    }
+
+    // Procesar pedido
+    window.procesarPedido = function() {
+        const productoId = document.getElementById('a').value;
+        const cantidad = document.getElementById('b').value;
+        const precio = document.getElementById('p').value;
+
+        // Usar módulo de pedidos
+        const pedido = PedidosModule.procesarPedido(productoId, cantidad, precio);
+
+        if (!pedido) {
+            const validacion = PedidosModule.validarPedido(productoId, cantidad, precio);
+            const mensaje = validacion.errores.join('\n');
+            alert('❌ Errores:\n' + mensaje);
+            return;
+        }
+
+        // Mostrar resultado
+        const resDiv = document.getElementById('res');
+        const nombre = MenuModule.obtenerNombre(productoId);
+        resDiv.innerHTML = `
+            <strong>✅ Pedido Procesado</strong><br>
+            <strong>Producto:</strong> ${nombre}<br>
+            <strong>Cantidad:</strong> ${pedido.cantidad}<br>
+            <strong>Precio Unit:</strong> ${Utils.formatoMoneda(pedido.precio)}<br>
+            <strong>Subtotal:</strong> ${Utils.formatoMoneda(pedido.subtotal)}<br>
+            <strong>IVA (19%):</strong> ${Utils.formatoMoneda(pedido.iva)}<br>
+            <strong style="color: #27ae60; font-size: 16px;">TOTAL: ${Utils.formatoMoneda(pedido.total)}</strong>
+        `;
+        resDiv.style.display = 'block';
+
+        // Limpiar formulario
+        limpiar();
+    };
+
+    // Limpiar formulario
+    window.limpiar = function() {
+        Utils.limpiarFormulario(['a', 'b', 'p']);
+    };
+
+    // Inicializar al cargar
+    inicializar();
+</script>
+
+</body>
+</html>

@@ -2,211 +2,52 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>RestoApp - Sistema de Pedidos (LEGACY)</title>
-    <style>
-        /* CSS Desordenado y con selectores redundantes */
-        body { font-family: sans-serif; }
-        .contenedor-principal { width: 400px; margin: auto; padding-top: 50px; }
-        .clase_redundante_que_no_se_usa { color: transparent; display: none; }
-        #form { border: 1px solid #000; padding: 20px; }
-        .item { margin-bottom: 10px; }
-        #btn { background-color: green; color: white; padding: 10px; cursor: pointer; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ComputeShop - Sistema de Pedidos de Computación</title>
+    <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
 
 <div class="contenedor-principal">
-    <h2>RestoApp - Mesero V1.0</h2>
-    <div id="form">
-        <div class="item">
-            Plato ID: 
-            <select id="a">
-                <option value="">--Cargando menú--</option>
-            </select>
+    <h2>💻 ComputeShop - Sistema de Pedidos</h2>
+    
+    <p style="color: #7f8c8d; line-height: 1.6;">
+        ComputeShop es una aplicación moderna para gestionar pedidos de componentes y equipos de computación.
+        Esta versión ha sido refactorizada desde una base legacy para demostrar buenas prácticas
+        de desarrollo: modularización, separación de responsabilidades, y arquitectura MPA.
+    </p>
+
+    <div style="margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <div style="background-color: #ecf0f1; padding: 20px; border-radius: 8px; text-align: center;">
+            <h3>📋 Tomar Pedido</h3>
+            <p style="color: #7f8c8d; margin: 10px 0;">Selecciona productos del catálogo y procesa pedidos</p>
+            <a href="./pages/pedido.html" style="display: inline-block; background-color: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-top: 10px;">Ir a Pedidos →</a>
         </div>
-        <div class="item">
-            Cantidad: <input type="number" id="b">
+
+        <div style="background-color: #ecf0f1; padding: 20px; border-radius: 8px; text-align: center;">
+            <h3>🔐 Administrador</h3>
+            <p style="color: #7f8c8d; margin: 10px 0;">Acceso restringido para crear y editar productos de inventario</p>
+            <a href="./pages/login.html" style="display: inline-block; background-color: #27ae60; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-top: 10px;">Ir a Admin →</a>
         </div>
-        <div class="item">
-            Precio Unitario ($): <input type="number" id="p">
-        </div>
-        <button id="btn" onclick="tomarTodo()">PROCESAR TODO</button>
     </div>
 
-    <div id="res" style="margin-top: 20px; font-weight: bold;"></div>
-
-    <!-- Sección de autenticación (Mala práctica: credenciales en cliente) -->
-    <div id="auth" style="margin-top:20px; border:1px dashed #ccc; padding:10px;">
-        <h3>Acceso al sistema</h3>
-        Usuario: <input type="text" id="user"> Contraseña: <input type="password" id="pass">
-        <button id="loginBtn" onclick="login()">Ingresar</button>
-        <button id="logoutBtn" onclick="logout()" style="display:none">Cerrar sesión</button>
-        <div id="authMsg" style="margin-top:8px;color:darkred;"></div>
+    <!-- Sección de información sobre la refactorización -->
+    <div style="margin-top: 40px; padding: 20px; background-color: #fafafa; border-left: 4px solid #2980b9; border-radius: 4px; text-align: center;">
+        <h3>📚 Sobre esta Refactorización</h3>
+        <p style="color: #555; margin: 15px 0;">
+            Esta aplicación ha sido refactorizada desde una base legacy para demostrar buenas prácticas de desarrollo.
+        </p>
+        <a href="./ABOUT.md" style="display: inline-block; background-color: #2980b9; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Ver detalles completos →</a>
     </div>
 
-    <!-- Formulario para crear productos (solo visible si está autenticado) -->
-    <div id="productForm" style="margin-top:20px; border:1px solid #ddd; padding:10px; display:none;">
-        <h3>Crear producto (Mala práctica: sin validación segura)</h3>
-        Nombre: <input type="text" id="newName"> Precio: <input type="number" id="newPrice"> 
-        <button onclick="crearProducto()">Crear</button>
-        <div id="prodMsg" style="margin-top:8px;color:green;"></div>
+    <!-- Footer -->
+    <div style="margin-top: 40px; padding: 20px; text-align: center; border-top: 1px solid #bdc3c7; color: #7f8c8d;">
+        <p>ComputeShop - Taller de Refactorización y Uso de IA</p>
+        <p style="font-size: 12px; margin-top: 10px;">
+            Código base para práctica educativa | Derechos reservados © 2026
+        </p>
     </div>
 </div>
-
-<script>
-    // --- VARIABLES GLOBALES (Mala práctica) ---
-    var items = [];
-    var total_global = 0;
-    var menuData = {};
-
-    // Cargar menú desde Realtime Database
-    function cargarMenu() {
-        var url = "https://stock-flow-2e23e-default-rtdb.firebaseio.com/menu.json";
-        fetch(url)
-            .then(function(res){ if(!res.ok) throw new Error('Network response was not ok'); return res.json(); })
-            .then(function(data){
-                menuData = {};
-                var select = document.getElementById('a');
-                select.innerHTML = '<option value="">--Selecciona plato--</option>';
-                if (Array.isArray(data)) {
-                    data.forEach(function(item, idx){
-                        var id = item.id || idx;
-                        var name = item.name || ('Plato ' + id);
-                        var price = item.price || item.precio || 0;
-                        menuData[id] = price;
-                        var opt = document.createElement('option');
-                        opt.value = id;
-                        opt.text = name + ' ($' + price + ')';
-                        select.appendChild(opt);
-                    });
-                } else if (typeof data === 'object' && data !== null) {
-                    Object.keys(data).forEach(function(key){
-                        var item = data[key] || {};
-                        var name = item.name || key;
-                        var price = item.price || item.precio || 0;
-                        menuData[key] = price;
-                        var opt = document.createElement('option');
-                        opt.value = key;
-                        opt.text = name + ' ($' + price + ')';
-                        select.appendChild(opt);
-                    });
-                }
-            })
-            .catch(function(err){
-                console.error('Error cargando menu:', err);
-                var select = document.getElementById('a');
-                select.innerHTML = '<option value="">--Error cargando menú--</option>';
-            });
-    }
-
-    // Autocompletar precio al seleccionar plato
-    document.addEventListener('change', function(e){
-        if (e.target && e.target.id === 'a') {
-            var val = e.target.value;
-            if (menuData && menuData[val] !== undefined) {
-                document.getElementById('p').value = menuData[val];
-            }
-        }
-    });
-
-    // --- FUNCIÓN MONOLÍTICA (Complejidad ciclomática alta) ---
-    function tomarTodo() {
-        // Nombres de variables crípticos (a, b, p)
-        let a = document.getElementById('a').value;
-        let b = document.getElementById('b').value;
-        let p = document.getElementById('p').value;
-
-        // Conversión lax
-        b = Number(b);
-        p = Number(p);
-
-        // Validación sencilla
-        if (a != "" && b > 0) {
-            let sub = b * p;
-            // IVA hardcodeado 19%
-            let tax = sub * 0.19;
-            let total = sub + tax;
-
-            document.getElementById('res').innerHTML = "Pedido: " + a + " | Subtotal: $" + sub.toFixed(2) + " | IVA: $" + tax.toFixed(2) + " | Total: $" + total.toFixed(2);
-
-            // Limpieza manual del formulario
-            document.getElementById('a').value = "";
-            document.getElementById('b').value = "";
-            document.getElementById('p').value = "";
-        } else {
-            alert("Error en datos");
-        }
-    }
-
-    // --- CÓDIGO MUERTO (Función que nunca se llama) ---
-    function funcionObsoletaCalculoAnterior(x, y) {
-        let res = x / y;
-        console.log("Calculando algo que ya no usamos...");
-        return res;
-    }
-
-    // Iniciar carga de menú
-    window.onload = function(){
-        cargarMenu();
-    };
-
-    // --- Autenticación muy insegura (para práctica de refactor) ---
-    var isLogged = false;
-    // Credenciales hardcodeadas (NO HACER ESTO en producción)
-    var ADMIN_USER = 'admin';
-    var ADMIN_PASS = 'admin';
-
-    function login() {
-        var u = document.getElementById('user').value;
-        var p = document.getElementById('pass').value;
-        if (u === ADMIN_USER && p === ADMIN_PASS) {
-            isLogged = true;
-            document.getElementById('authMsg').innerText = 'Autenticado';
-            document.getElementById('loginBtn').style.display = 'none';
-            document.getElementById('logoutBtn').style.display = 'inline-block';
-            document.getElementById('productForm').style.display = 'block';
-        } else {
-            document.getElementById('authMsg').innerText = 'Credenciales inválidas';
-        }
-    }
-
-    function logout() {
-        isLogged = false;
-        document.getElementById('authMsg').innerText = '';
-        document.getElementById('loginBtn').style.display = 'inline-block';
-        document.getElementById('logoutBtn').style.display = 'none';
-        document.getElementById('productForm').style.display = 'none';
-    }
-
-    // Crear producto: POST directo a Realtime DB (mala práctica: sin auth, sin sanitizar)
-    function crearProducto() {
-        if (!isLogged) {
-            document.getElementById('prodMsg').innerText = 'No autorizado';
-            return;
-        }
-        var name = document.getElementById('newName').value;
-        var price = Number(document.getElementById('newPrice').value) || 0;
-        if (name === '' || price <= 0) {
-            document.getElementById('prodMsg').innerText = 'Datos inválidos';
-            return;
-        }
-        var url = 'https://stock-flow-2e23e-default-rtdb.firebaseio.com/menu.json';
-        var body = { name: name, price: price };
-        fetch(url, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) })
-            .then(function(res){ if(!res.ok) throw new Error('Error al crear'); return res.json(); })
-            .then(function(data){
-                document.getElementById('prodMsg').innerText = 'Producto creado';
-                // refrescar el menú para incluir el nuevo producto
-                cargarMenu();
-                document.getElementById('newName').value = '';
-                document.getElementById('newPrice').value = '';
-            })
-            .catch(function(err){
-                console.error('Crear producto error:', err);
-                document.getElementById('prodMsg').innerText = 'Error creando producto';
-            });
-    }
-</script>
 
 </body>
 </html>

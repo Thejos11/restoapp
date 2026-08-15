@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ComputeShop - Acceso</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+<div class="contenedor-principal">
+    <h2>🔐 Acceso al Sistema ComputeShop</h2>
+    
+    <div class="auth-section">
+        <div class="form-group">
+            <label for="user">Usuario:</label>
+            <input type="text" id="user" placeholder="Ingrese usuario">
+        </div>
+        
+        <div class="form-group">
+            <label for="pass">Contraseña:</label>
+            <input type="password" id="pass" placeholder="Ingrese contraseña">
+        </div>
+        
+        <button id="loginBtn" onclick="manejarLogin()">Ingresar</button>
+        
+        <div id="authMsg" class="auth-msg" style="margin-top: 10px;"></div>
+    </div>
+
+    <div style="margin-top: 30px; padding: 15px; background-color: #ecf0f1; border-radius: 4px;">
+        <p><strong>Demo credentials:</strong></p>
+        <p>Usuario: <code>admin</code></p>
+        <p>Contraseña: <code>admin</code></p>
+        <p style="color: #c0392b; margin-top: 10px;">
+            ⚠️ <strong>TODO:</strong> Estas credenciales NO deben estar en cliente en producción.
+        </p>
+    </div>
+
+    <div style="margin-top: 20px; text-align: center;">
+        <a href="../index.html" style="color: #2980b9; text-decoration: none;">← Volver al inicio</a>
+    </div>
+</div>
+
+<script type="module">
+    import { AuthModule } from '../js/auth.js';
+
+    window.manejarLogin = function() {
+        const usuario = document.getElementById('user').value;
+        const password = document.getElementById('pass').value;
+
+        const elementos = {
+            authMsg: document.getElementById('authMsg'),
+            loginBtn: document.getElementById('loginBtn'),
+            logoutBtn: null,
+            productForm: null
+        };
+
+        if (AuthModule.login(usuario, password, elementos)) {
+            // Éxito - redirigir a página de pedidos
+            setTimeout(() => {
+                window.location.href = './pedido.html';
+            }, 1500);
+        }
+    };
+
+    // Permitir login con Enter
+    document.getElementById('pass').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            window.manejarLogin();
+        }
+    });
+</script>
+
+</body>
+</html>

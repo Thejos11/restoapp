@@ -101,27 +101,33 @@ export const PedidosModule = (() => {
         `;
     };
 
+    const BASE_URL = 'https://resto-app-d93fa-default-rtdb.firebaseio.com/menu';
+
     /**
      * Crea un producto en Firebase (requiere autenticación)
      * @param {string} nombre - Nombre del producto
      * @param {number} precio - Precio del producto
+     * @param {number} stock - Cantidad disponible en inventario
      * @returns {Promise} - Promesa de creación
      */
-    const crearProducto = async (nombre, precio) => {
+    const crearProducto = async (nombre, precio, stock = 0) => {
         // Validar entrada
         if (!nombre || nombre.trim() === '' || precio <= 0) {
             throw new Error('Datos inválidos: nombre y precio requeridos');
         }
+        if (Number(stock) < 0) {
+            throw new Error('La cantidad no puede ser negativa');
+        }
 
-        const url = 'https://resto-app-f709c-default-rtdb.firebaseio.com/menu.json';
         const body = {
             name: nombre.trim(),
-            price: Number(precio)
+            price: Number(precio),
+            stock: Number(stock) || 0
         };
 
         try {
             // TODO: Agregar autenticación real y validación de permisos
-            const response = await fetch(url, {
+            const response = await fetch(`${BASE_URL}.json`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
@@ -137,12 +143,77 @@ export const PedidosModule = (() => {
         }
     };
 
+    /**
+     * Edita un producto existente en Firebase (requiere autenticación)
+     * @param {string} id - ID del plato a editar
+     * @param {string} nombre - Nuevo nombre
+     * @param {number} precio - Nuevo precio
+     * @param {number} stock - Nueva cantidad disponible
+     * @returns {Promise}
+     */
+    const editarProducto = async (id, nombre, precio, stock = 0) => {
+        if (!id) throw new Error('ID de plato requerido');
+        if (!nombre || nombre.trim() === '' || precio <= 0) {
+            throw new Error('Datos inválidos: nombre y precio requeridos');
+        }
+        if (Number(stock) < 0) {
+            throw new Error('La cantidad no puede ser negativa');
+        }
+
+        const body = {
+            name: nombre.trim(),
+            price: Number(precio),
+            stock: Number(stock) || 0
+        };
+
+        try {
+            // TODO: Agregar autenticación real y validación de permisos
+            const response = await fetch(`${BASE_URL}/${id}.json`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            if (!response.ok) throw new Error('Error al editar el plato en BD');
+
+            return { exito: true, id, datos: body };
+        } catch (error) {
+            console.error('Error editando producto:', error);
+            throw error;
+        }
+    };
+
+    /**
+     * Elimina un producto en Firebase (requiere autenticación)
+     * @param {string} id - ID del plato a eliminar
+     * @returns {Promise}
+     */
+    const eliminarProducto = async (id) => {
+        if (!id) throw new Error('ID de plato requerido');
+
+        try {
+            // TODO: Agregar autenticación real y validación de permisos
+            const response = await fetch(`${BASE_URL}/${id}.json`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) throw new Error('Error al eliminar el plato en BD');
+
+            return { exito: true, id };
+        } catch (error) {
+            console.error('Error eliminando producto:', error);
+            throw error;
+        }
+    };
+
     return {
         calcularTotal,
         validarPedido,
         procesarPedido,
         formatearPedido,
         crearProducto,
+        editarProducto,
+        eliminarProducto,
         IVA_RATE
     };
 })();

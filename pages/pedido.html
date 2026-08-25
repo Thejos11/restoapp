@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ComputeShop - Tomar Pedido</title>
+    <title>Fēngli 丰利酒楼 — Tomar Pedido</title>
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
@@ -14,11 +14,12 @@
         <a href="./login.html">🔐 Admin</a>
     </div>
 
-    <h2>📋 Procesar Pedido</h2>
+    <span class="eyebrow">丰利酒楼</span>
+    <h2>🥡 Procesar Pedido</h2>
     
     <div id="form">
         <div class="form-group">
-            <label for="a">Producto:</label>
+            <label for="a">Plato:</label>
             <select id="a">
                 <option value="">--Cargando menú--</option>
             </select>
@@ -38,7 +39,7 @@
         <button class="secondary" onclick="limpiar()">Limpiar</button>
     </div>
 
-    <div id="res" class="resultado" style="display: none;"></div>
+    <div id="res" class="resultado" hidden></div>
 </div>
 
 <script type="module">
@@ -87,12 +88,12 @@
         const nombre = MenuModule.obtenerNombre(productoId);
         resDiv.innerHTML = `
             <strong>✅ Pedido Procesado</strong><br>
-            <strong>Producto:</strong> ${nombre}<br>
+            <strong>Plato:</strong> ${nombre}<br>
             <strong>Cantidad:</strong> ${pedido.cantidad}<br>
             <strong>Precio Unit:</strong> ${Utils.formatoMoneda(pedido.precio)}<br>
             <strong>Subtotal:</strong> ${Utils.formatoMoneda(pedido.subtotal)}<br>
             <strong>IVA (19%):</strong> ${Utils.formatoMoneda(pedido.iva)}<br>
-            <strong style="color: #27ae60; font-size: 16px;">TOTAL: ${Utils.formatoMoneda(pedido.total)}</strong>
+            <strong class="total-final">TOTAL: ${Utils.formatoMoneda(pedido.total)}</strong>
         `;
         resDiv.style.display = 'block';
 

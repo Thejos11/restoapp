@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ComputeShop - Admin</title>
+    <title>Fēngli 丰利酒楼 — Admin</title>
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
@@ -11,39 +11,43 @@
 <div class="contenedor-principal">
     <div class="nav-bar">
         <a href="../index.html">🏠 Inicio</a>
-        <a href="./pedido.html">📋 Pedidos</a>
-        <button id="logoutBtn" onclick="cerrarSesion()" style="background-color: #e74c3c;">Cerrar sesión</button>
+        <a href="./pedido.html">🥡 Pedidos</a>
+        <button id="logoutBtn" onclick="cerrarSesion()" class="logout">Cerrar sesión</button>
     </div>
 
-    <h2>⚙️ Administración de Inventario</h2>
-    
-    <!-- TODO: Implementar validación más robusta -->
-    <!-- TODO: Agregar confirmación de admin antes de crear productos -->
-    <!-- TODO: Permitir editar/eliminar productos existentes -->
-    
+    <span class="eyebrow">丰利酒楼</span>
+    <h2>⚙️ Administración del Menú</h2>
+
     <div class="product-form active">
-        <h3>Agregar Nuevo Producto al Inventario</h3>
-        
+        <h3 id="formTitulo">Agregar Nuevo Plato al Menú</h3>
+
         <div class="form-group">
-            <label for="newName">Nombre del Producto:</label>
-            <input type="text" id="newName" placeholder="Ej: Procesador Intel Core i7">
+            <label for="newName">Nombre del Plato:</label>
+            <input type="text" id="newName" placeholder="Ej: Pato Laqueado a la Pekinesa">
         </div>
-        
+
         <div class="form-group">
             <label for="newPrice">Precio ($):</label>
-            <input type="number" id="newPrice" step="0.01" placeholder="Ej: 15.50">
+            <input type="number" id="newPrice" step="0.01" min="0" placeholder="Ej: 15.50">
         </div>
-        
-        <button onclick="crearProductoHandler()">➕ Crear Producto</button>
-        
-        <div id="prodMsg" class="product-msg" style="margin-top: 10px;"></div>
+
+        <div class="form-group">
+            <label for="newStock">Cantidad disponible:</label>
+            <input type="number" id="newStock" step="1" min="0" placeholder="Ej: 20">
+        </div>
+
+        <div class="acciones-form">
+            <button id="submitBtn" onclick="guardarPlatoHandler()">➕ Crear Plato</button>
+            <button id="cancelEditBtn" class="secondary" onclick="cancelarEdicion()" hidden>Cancelar edición</button>
+        </div>
+
+        <div id="prodMsg" class="product-msg"></div>
     </div>
 
-    <!-- TODO: Agregar listado de productos -->
-    <div style="margin-top: 30px; padding: 15px; background-color: #fafafa; border-radius: 4px; border: 1px solid #bdc3c7;">
-        <h3>📊 Catálogo Actual</h3>
-        <div id="menuList" style="margin-top: 15px;">
-            <p style="color: #7f8c8d;">Cargando menú...</p>
+    <div class="panel-catalogo">
+        <h3>📊 Menú Actual</h3>
+        <div id="menuList">
+            <p class="nota-lista">Cargando menú...</p>
         </div>
     </div>
 </div>
@@ -54,55 +58,125 @@
     import { MenuModule } from '../js/menu.js';
     import { Utils } from '../js/utils.js';
 
-    // Verificar autenticación (en real world, usar session/JWT)
-    // TODO: Implementar verificación real de sesión
-    const usuarios = sessionStorage.getItem('usuario_actual');
-    if (!usuarios) {
-        // Opcional: redirigir a login
-        console.warn('No hay sesión activa - considera implementar login');
+    // Guardia de sesión: si no hay usuario autenticado, redirigir al login
+    const usuarioActual = sessionStorage.getItem('usuario_actual');
+    if (!usuarioActual) {
+        window.location.href = './login.html';
     }
+
+    // ID del plato que se está editando actualmente (null = modo creación)
+    let editandoId = null;
 
     // Cargar y mostrar catálogo actual
     async function cargarMenuActual() {
         try {
             const menu = await MenuModule.cargarMenu();
             const menuList = document.getElementById('menuList');
-            
+
             if (Object.keys(menu).length === 0) {
-                menuList.innerHTML = '<p style="color: #7f8c8d;">No hay productos</p>';
+                menuList.innerHTML = '<p class="nota-lista">No hay platos en el menú todavía</p>';
                 return;
             }
 
-            let html = '<table><thead><tr><th>ID</th><th>Nombre</th><th>Precio</th></tr></thead><tbody>';
+            let html = '<table><thead><tr><th>Nombre</th><th>Precio</th><th>Cantidad</th><th>Acciones</th></tr></thead><tbody>';
             Object.entries(menu).forEach(([id, item]) => {
-                html += `<tr><td>${id}</td><td>${item.name}</td><td>${Utils.formatoMoneda(item.price)}</td></tr>`;
+                html += `
+                    <tr>
+                        <td>${escaparHtml(item.name)}</td>
+                        <td>${Utils.formatoMoneda(item.price)}</td>
+                        <td>${item.stock}</td>
+                        <td class="fila-acciones">
+                            <button class="secondary btn-sm" onclick="editarPlatoHandler('${id}')">✏️ Editar</button>
+                            <button class="danger btn-sm" onclick="eliminarPlatoHandler('${id}', '${escaparHtml(item.name).replace(/'/g, "\\'")}')">🗑️ Eliminar</button>
+                        </td>
+                    </tr>`;
             });
             html += '</tbody></table>';
-            
+
             menuList.innerHTML = html;
         } catch (error) {
             console.error('Error cargando menú:', error);
-            document.getElementById('menuList').innerHTML = '<p style="color: #c0392b;">Error cargando menú</p>';
+            document.getElementById('menuList').innerHTML = '<p class="alert error">Error cargando menú</p>';
         }
     }
 
-    // Crear producto
-    window.crearProductoHandler = async function() {
+    function escaparHtml(texto) {
+        const div = document.createElement('div');
+        div.textContent = texto ?? '';
+        return div.innerHTML;
+    }
+
+    // Crear o guardar edición de un plato
+    window.guardarPlatoHandler = async function() {
         const nombre = document.getElementById('newName').value;
         const precio = document.getElementById('newPrice').value;
+        const stock = document.getElementById('newStock').value;
         const msgDiv = document.getElementById('prodMsg');
 
         try {
-            await PedidosModule.crearProducto(nombre, precio);
-            msgDiv.textContent = '✅ Producto creado exitosamente';
+            if (editandoId) {
+                await PedidosModule.editarProducto(editandoId, nombre, precio, stock);
+                msgDiv.textContent = '✅ Plato actualizado exitosamente';
+            } else {
+                await PedidosModule.crearProducto(nombre, precio, stock);
+                msgDiv.textContent = '✅ Plato creado exitosamente';
+            }
             msgDiv.classList.remove('error');
             msgDiv.classList.add('success');
-            
-            // Limpiar formulario
-            Utils.limpiarFormulario(['newName', 'newPrice']);
-            
-            // Recargar menú
-            await Utils.esperar(1000);
+
+            cancelarEdicion();
+            await Utils.esperar(600);
+            await cargarMenuActual();
+        } catch (error) {
+            msgDiv.textContent = '❌ Error: ' + error.message;
+            msgDiv.classList.remove('success');
+            msgDiv.classList.add('error');
+        }
+    };
+
+    // Cargar los datos de un plato en el formulario para editarlo
+    window.editarPlatoHandler = async function(id) {
+        const menu = MenuModule.obtenerMenuCompleto();
+        const item = menu[id];
+        if (!item) return;
+
+        editandoId = id;
+        document.getElementById('newName').value = item.name;
+        document.getElementById('newPrice').value = item.price;
+        document.getElementById('newStock').value = item.stock;
+
+        document.getElementById('formTitulo').textContent = `Editando: ${item.name}`;
+        document.getElementById('submitBtn').textContent = '💾 Guardar Cambios';
+        document.getElementById('cancelEditBtn').hidden = false;
+        document.getElementById('prodMsg').textContent = '';
+
+        document.querySelector('.product-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    // Cancelar edición y volver al modo "crear"
+    window.cancelarEdicion = function() {
+        editandoId = null;
+        Utils.limpiarFormulario(['newName', 'newPrice', 'newStock']);
+        document.getElementById('formTitulo').textContent = 'Agregar Nuevo Plato al Menú';
+        document.getElementById('submitBtn').textContent = '➕ Crear Plato';
+        document.getElementById('cancelEditBtn').hidden = true;
+    };
+
+    // Eliminar un plato (con confirmación)
+    window.eliminarPlatoHandler = async function(id, nombre) {
+        const confirmado = window.confirm(`¿Eliminar "${nombre}" del menú? Esta acción no se puede deshacer.`);
+        if (!confirmado) return;
+
+        const msgDiv = document.getElementById('prodMsg');
+        try {
+            await PedidosModule.eliminarProducto(id);
+            msgDiv.textContent = '✅ Plato eliminado';
+            msgDiv.classList.remove('error');
+            msgDiv.classList.add('success');
+
+            // Si se estaba editando el plato que se eliminó, volver a modo creación
+            if (editandoId === id) cancelarEdicion();
+
             await cargarMenuActual();
         } catch (error) {
             msgDiv.textContent = '❌ Error: ' + error.message;

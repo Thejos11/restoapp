@@ -3,41 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ComputeShop - Acceso</title>
+    <title>Fēngli 丰利酒楼 — Acceso</title>
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
 
 <div class="contenedor-principal">
-    <h2>🔐 Acceso al Sistema ComputeShop</h2>
-    
+    <a href="../index.html" class="logo-marca">
+        <img src="../img/logo.png" alt="Fēngli Restaurante Chino 丰利酒楼">
+    </a>
+
+    <span class="eyebrow">丰利酒楼</span>
+    <h2>🔐 Acceso al Sistema</h2>
+
     <div class="auth-section">
         <div class="form-group">
             <label for="user">Usuario:</label>
-            <input type="text" id="user" placeholder="Ingrese usuario">
+            <input type="text" id="user" placeholder="Ingrese usuario" autocomplete="username">
         </div>
         
         <div class="form-group">
             <label for="pass">Contraseña:</label>
-            <input type="password" id="pass" placeholder="Ingrese contraseña">
+            <input type="password" id="pass" placeholder="Ingrese contraseña" autocomplete="current-password">
         </div>
         
         <button id="loginBtn" onclick="manejarLogin()">Ingresar</button>
         
-        <div id="authMsg" class="auth-msg" style="margin-top: 10px;"></div>
+        <div id="authMsg" class="auth-msg"></div>
     </div>
 
-    <div style="margin-top: 30px; padding: 15px; background-color: #ecf0f1; border-radius: 4px;">
+    <div class="credenciales-demo">
         <p><strong>Demo credentials:</strong></p>
         <p>Usuario: <code>admin</code></p>
         <p>Contraseña: <code>admin</code></p>
-        <p style="color: #c0392b; margin-top: 10px;">
+        <p class="aviso">
             ⚠️ <strong>TODO:</strong> Estas credenciales NO deben estar en cliente en producción.
         </p>
     </div>
 
-    <div style="margin-top: 20px; text-align: center;">
-        <a href="../index.html" style="color: #2980b9; text-decoration: none;">← Volver al inicio</a>
+    <div class="volver">
+        <a href="../index.html">← Volver al inicio</a>
     </div>
 </div>
 
@@ -56,10 +61,11 @@
         };
 
         if (AuthModule.login(usuario, password, elementos)) {
-            // Éxito - redirigir a página de pedidos
+            // Persistir sesión y redirigir al panel de administración
+            sessionStorage.setItem('usuario_actual', usuario);
             setTimeout(() => {
-                window.location.href = './pedido.html';
-            }, 1500);
+                window.location.href = './admin.html';
+            }, 800);
         }
     };
 

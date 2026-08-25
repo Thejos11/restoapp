@@ -3,49 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ComputeShop - Sistema de Pedidos de Computación</title>
+    <title>Fēngli 丰利酒楼 — Sistema de Pedidos</title>
     <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
 
 <div class="contenedor-principal">
-    <h2>💻 ComputeShop - Sistema de Pedidos</h2>
-    
-    <p style="color: #7f8c8d; line-height: 1.6;">
-        ComputeShop es una aplicación moderna para gestionar pedidos de componentes y equipos de computación.
+    <a href="./index.html" class="logo-marca">
+        <img src="./img/logo.png" alt="Fēngli Restaurante Chino 丰利酒楼">
+    </a>
+
+    <span class="eyebrow">丰利酒楼</span>
+    <h2>Sistema de Pedidos</h2>
+
+    <p class="subtitulo">
+        Restaurante Fēngli — gestiona pedidos del menú y el catálogo de platos.
         Esta versión ha sido refactorizada desde una base legacy para demostrar buenas prácticas
-        de desarrollo: modularización, separación de responsabilidades, y arquitectura MPA.
+        de desarrollo: modularización, separación de responsabilidades y arquitectura MPA.
     </p>
 
-    <div style="margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-        <div style="background-color: #ecf0f1; padding: 20px; border-radius: 8px; text-align: center;">
-            <h3>📋 Tomar Pedido</h3>
-            <p style="color: #7f8c8d; margin: 10px 0;">Selecciona productos del catálogo y procesa pedidos</p>
-            <a href="./pages/pedido.html" style="display: inline-block; background-color: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-top: 10px;">Ir a Pedidos →</a>
+    <div class="tarjetas">
+        <div class="tarjeta">
+            <span class="icono">🥡</span>
+            <h3>Tomar Pedido</h3>
+            <p>Selecciona platos del menú y procesa pedidos</p>
+            <a href="./pages/pedido.html" class="enlace-boton">Ir a Pedidos →</a>
         </div>
 
-        <div style="background-color: #ecf0f1; padding: 20px; border-radius: 8px; text-align: center;">
-            <h3>🔐 Administrador</h3>
-            <p style="color: #7f8c8d; margin: 10px 0;">Acceso restringido para crear y editar productos de inventario</p>
-            <a href="./pages/login.html" style="display: inline-block; background-color: #27ae60; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-top: 10px;">Ir a Admin →</a>
+        <div class="tarjeta admin">
+            <span class="icono">🔐</span>
+            <h3>Administrador</h3>
+            <p>Acceso restringido para crear y editar platos del menú</p>
+            <a href="./pages/login.html" class="enlace-boton">Ir a Admin →</a>
         </div>
     </div>
 
-    <!-- Sección de información sobre la refactorización -->
-    <div style="margin-top: 40px; padding: 20px; background-color: #fafafa; border-left: 4px solid #2980b9; border-radius: 4px; text-align: center;">
+    <div class="info-bloque">
         <h3>📚 Sobre esta Refactorización</h3>
-        <p style="color: #555; margin: 15px 0;">
+        <p>
             Esta aplicación ha sido refactorizada desde una base legacy para demostrar buenas prácticas de desarrollo.
         </p>
-        <a href="./ABOUT.md" style="display: inline-block; background-color: #2980b9; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Ver detalles completos →</a>
+        <a href="./ABOUT.md" class="enlace-boton">Ver detalles completos →</a>
     </div>
 
-    <!-- Footer -->
-    <div style="margin-top: 40px; padding: 20px; text-align: center; border-top: 1px solid #bdc3c7; color: #7f8c8d;">
-        <p>ComputeShop - Taller de Refactorización y Uso de IA</p>
-        <p style="font-size: 12px; margin-top: 10px;">
-            Código base para práctica educativa | Derechos reservados © 2026
-        </p>
+    <div class="pie">
+        <p class="caracteres">丰利酒楼</p>
+        <p>Fēngli Restaurante Chino — Taller de Refactorización y Uso de IA</p>
+        <p>Código base para práctica educativa · Derechos reservados © 2026</p>
     </div>
 </div>
 

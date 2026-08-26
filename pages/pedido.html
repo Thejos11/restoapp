@@ -68,7 +68,7 @@
     }
 
     // Procesar pedido
-    window.procesarPedido = function() {
+    window.procesarPedido = async function() {
         const productoId = document.getElementById('a').value;
         const cantidad = document.getElementById('b').value;
         const precio = document.getElementById('p').value;
@@ -83,9 +83,21 @@
             return;
         }
 
+        const nombre = MenuModule.obtenerNombre(productoId);
+        const botonProcesar = document.querySelector('#form button:not(.secondary)');
+        botonProcesar.disabled = true;
+
+        try {
+            await PedidosModule.crearPedido(pedido, nombre);
+        } catch (error) {
+            alert('❌ ' + error.message);
+            return;
+        } finally {
+            botonProcesar.disabled = false;
+        }
+
         // Mostrar resultado
         const resDiv = document.getElementById('res');
-        const nombre = MenuModule.obtenerNombre(productoId);
         resDiv.innerHTML = `
             <strong>✅ Pedido Procesado</strong><br>
             <strong>Plato:</strong> ${nombre}<br>
@@ -99,6 +111,7 @@
 
         // Limpiar formulario
         limpiar();
+        await MenuModule.cargarMenu('a');
     };
 
     // Limpiar formulario

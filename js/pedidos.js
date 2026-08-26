@@ -102,6 +102,7 @@ export const PedidosModule = (() => {
     };
 
     const BASE_URL = 'https://resto-app-d93fa-default-rtdb.firebaseio.com/menu';
+    const PEDIDOS_URL = 'https://resto-app-d93fa-default-rtdb.firebaseio.com/pedidos';
 
     /**
      * Crea un producto en Firebase (requiere autenticación)
@@ -206,6 +207,58 @@ export const PedidosModule = (() => {
         }
     };
 
+    /**
+     * Guarda un pedido y descuenta sus unidades del inventario
+     * @param {Object} pedido - Pedido procesado
+     * @param {string} nombreProducto - Nombre del producto
+     * @returns {Promise<Object>} - Resultado de las operaciones en Firebase
+     */
+    const crearPedido = async (pedido, nombreProducto) => {
+        if (!pedido?.productoId || !nombreProducto) {
+            throw new Error('Datos del pedido incompletos');
+        }
+
+        const productoResponse = await fetch(`${BASE_URL}/${pedido.productoId}.json`);
+        if (!productoResponse.ok) {
+            throw new Error('No se pudo consultar el stock actual');
+        }
+
+        const productoActual = await productoResponse.json();
+        const stock = Number(productoActual?.stock ?? 0);
+        if (!Number.isFinite(stock) || pedido.cantidad > stock) {
+            throw new Error(`Stock insuficiente. Disponible: ${Math.max(0, stock)}`);
+        }
+
+        const pedidoGuardado = {
+            ...pedido,
+            productoNombre: nombreProducto,
+            creadoEn: new Date().toISOString()
+        };
+
+        const pedidoResponse = await fetch(`${PEDIDOS_URL}.json`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(pedidoGuardado)
+        });
+
+        if (!pedidoResponse.ok) {
+            throw new Error('No se pudo guardar el pedido en Firebase');
+        }
+
+        const stockResponse = await fetch(`${BASE_URL}/${pedido.productoId}/stock.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(stock - pedido.cantidad)
+        });
+
+        if (!stockResponse.ok) {
+            throw new Error('El pedido se guardó, pero no se pudo actualizar el stock');
+        }
+
+        const resultado = await pedidoResponse.json();
+        return { exito: true, id: resultado.name, datos: pedidoGuardado };
+    };
+
     return {
         calcularTotal,
         validarPedido,
@@ -214,6 +267,7 @@ export const PedidosModule = (() => {
         crearProducto,
         editarProducto,
         eliminarProducto,
+        crearPedido,
         IVA_RATE
     };
 })();
